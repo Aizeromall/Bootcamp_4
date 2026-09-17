@@ -13,12 +13,13 @@ class InsertTodoList extends StatefulWidget {
 class _InsertTodoListState extends State<InsertTodoList> {
   final TextEditingController _controller = TextEditingController();
   int _imageIndex = 0;
+  late final Future<List<TodoImage>> _imagesFuture;
 
-  static const List<IconData> _icons = <IconData>[
-    Icons.edit_note,
-    Icons.access_time,
-    Icons.check_circle_outline,
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _imagesFuture = ImageRepository.fetchImages();
+  }
 
   void _save() {
     final String value = _controller.text.trim();
@@ -58,10 +59,33 @@ class _InsertTodoListState extends State<InsertTodoList> {
         padding: const EdgeInsets.fromLTRB(16, 24, 16, 20),
         child: Column(
           children: [
-            _PickerView(
-              selectedIndex: _imageIndex,
-              icons: _icons,
-              onChanged: (value) => setState(() => _imageIndex = value),
+            FutureBuilder<List<TodoImage>>(
+              future: _imagesFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return const SizedBox(
+                    width: 190,
+                    height: 260,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                final List<TodoImage> images = snapshot.data ?? [];
+                if (snapshot.hasError || images.isEmpty) {
+                  return const SizedBox(
+                    width: 190,
+                    height: 260,
+                    child: Center(child: Text('이미지를 불러오지 못했습니다.')),
+                  );
+                }
+                if (_imageIndex >= images.length) {
+                  _imageIndex = images.length - 1;
+                }
+                return _PickerView(
+                  selectedIndex: _imageIndex,
+                  images: images,
+                  onChanged: (value) => setState(() => _imageIndex = value),
+                );
+              },
             ),
             const SizedBox(height: 44),
             TextField(
@@ -88,12 +112,12 @@ class _InsertTodoListState extends State<InsertTodoList> {
 class _PickerView extends StatelessWidget {
   const _PickerView({
     required this.selectedIndex,
-    required this.icons,
+    required this.images,
     required this.onChanged,
   });
 
   final int selectedIndex;
-  final List<IconData> icons;
+  final List<TodoImage> images;
   final ValueChanged<int> onChanged;
 
   @override
@@ -104,7 +128,10 @@ class _PickerView extends StatelessWidget {
           width: 190,
           height: 160,
           color: const Color(0xFFB9D9FF),
-          child: Icon(icons[selectedIndex], size: 74),
+          child: Image.memory(
+            images[selectedIndex].bytes,
+            fit: BoxFit.contain,
+          ),
         ),
         SizedBox(
           height: 92,
@@ -115,7 +142,13 @@ class _PickerView extends StatelessWidget {
               initialItem: selectedIndex,
             ),
             onSelectedItemChanged: onChanged,
-            children: [for (final IconData icon in icons) Icon(icon, size: 28)],
+            children: [
+              for (final TodoImage image in images)
+                Padding(
+                  padding: const EdgeInsets.all(4),
+                  child: Image.memory(image.bytes, fit: BoxFit.contain),
+                ),
+            ],
           ),
         ),
       ],

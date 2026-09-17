@@ -16,7 +16,7 @@ def connect():
     )
 
 
-@router.post("/update")
+@router.post("")
 async def update(
     seq: int = Form(...),
     todo: str = Form(...),

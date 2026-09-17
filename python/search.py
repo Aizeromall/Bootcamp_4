@@ -1,8 +1,7 @@
-from fastapi import FastAPI, Form
-from fastapi.responses import Response
+from fastapi import APIRouter, Form
 import pymysql
 
-app = FastAPI()
+router = APIRouter()
 
 
 def connect():
@@ -10,12 +9,12 @@ def connect():
         host='192.168.20.55',
         user='root',
         passwd='qwer1234',
-        database='python',
+        database='todo_team',
         charset='utf8'
     )
 
 
-@app.post("/search")
+@router.post("")
 async def search(
     todolist: str = Form(...)):
 
