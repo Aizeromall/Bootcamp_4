@@ -1,9 +1,8 @@
 from datetime import date
 
-from fastapi import APIRouter, FastAPI, Form
+from fastapi import APIRouter, Form
 import pymysql
 
-app = FastAPI()
 router = APIRouter()
 
 def connect():
@@ -15,7 +14,7 @@ def connect():
         charset="utf8",
     )
 
-@router.post("/insert")
+@router.post("")
 async def insert_todo(
     image_seq: int = Form(...),
     todolist: str = Form(...),
@@ -79,12 +78,3 @@ async def insert_todo(
         if conn is not None:
             conn.close()
 
-
-# 팀 서버의 메인 FastAPI 앱에 등록할 수 있도록 Router를 연결
-app.include_router(router)
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="192.168.20.55", port=8000)
