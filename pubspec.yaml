@@ -44,8 +44,6 @@ dependencies:
   # slidable
   flutter_slidable: ^4.0.3
 
-  # image picker
-  image_picker: ^1.2.3
 
 dev_dependencies:
   flutter_test:
