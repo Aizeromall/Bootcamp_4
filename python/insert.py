@@ -8,7 +8,7 @@ router = APIRouter()
 
 def connect():
     return pymysql.connect(
-        host="192.168.20.68",
+        host="192.168.20.55",
         user="root",
         password="qwer1234",
         db="todo_team",
